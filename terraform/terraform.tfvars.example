@@ -1,0 +1,5 @@
+aws_region    = "us-east-1"
+instance_type = "t3.micro"
+my_ip         = "YOUR_IP_ADDRESS/32"
+ami_id        = "YOUR_AMI_ID"
+key_name      = "startuptech-key"

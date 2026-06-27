@@ -1,0 +1,45 @@
+version: "3.8"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  backend:
+    build: .
+    container_name: muchtodo-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - DB_NAME=muchtodo
+      - PORT=8080
+      - JWT_SECRET_KEY=supersecretkey123
+      - JWT_EXPIRATION_HOURS=72
+      - ENABLE_CACHE=false
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+    networks:
+      - app-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
